@@ -1,0 +1,13 @@
+# OS Junk
+.DS_Store
+Thumbs.db
+
+# Arduino/PlatformIO build outputs
+.pio/
+build/
+*.elf
+*.hex
+
+# Environment & local config
+.env
+*.log

@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Family Pulse | نبض الأسرة - One Tap Daily Well-Being</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              emeraldCustom: {
+                50: '#f0fdf4',
+                100: '#dcfce7',
+                500: '#10b981',
+                600: '#059669',
+                700: '#047857',
+                900: '#064e3b',
+              },
+              coralCustom: {
+                50: '#fff5f5',
+                100: '#ffe3e3',
+                400: '#ff8787',
+                500: '#f87171',
+                600: '#e03131',
+              },
+              sandCustom: {
+                50: '#fdfbf7',
+                100: '#f7f3eb',
+                200: '#eee5d5',
+                800: '#5c5243',
+                900: '#3a3328',
+              }
+            },
+            fontFamily: {
+              sans: ['Inter', 'Segoe UI', 'Tahoma', 'sans-serif'],
+            }
+          }
+        }
+      }
+    </script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
+      
+      body {
+        font-family: 'Inter', 'Cairo', sans-serif;
+        background-color: #fdfbf7;
+        color: #1e293b;
+      }
+
+      /* RTL Support helpers */
+      [dir="rtl"] .rtl-flip {
+        transform: scaleX(-1);
+      }
+
+      /* Custom Glassmorphism */
+      .glass-card {
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(226, 232, 240, 0.8);
+      }
+
+      /* Custom Pulse Keyframes */
+      @keyframes softPulse {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.05); opacity: 0.9; }
+      }
+      .animate-soft-pulse {
+        animation: softPulse 3s infinite ease-in-out;
+      }
+
+      /* Gauge Ring Clip */
+      .gauge-circle {
+        transition: stroke-dashoffset 1s ease-in-out;
+      }
+    </style>
+</head>
+<body class="bg-sandCustom-50 min-h-screen flex flex-col justify-between selection:bg-emeraldCustom-100 selection:text-emeraldCustom-900">
+
+  <!-- TOP ANNOUNCEMENT / HEADER -->
+  <header class="sticky top-0 z-50 glass-card border-b border-sandCustom-200/60 transition-all duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      
+      <!-- Brand Logo & School Tag -->
+      <div class="flex items-center space-x-3 rtl:space-x-reverse">
+        <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-emeraldCustom-500 to-teal-600 text-white flex items-center justify-center shadow-lg shadow-emeraldCustom-500/20 animate-soft-pulse">
+          <i class="fa-solid fa-heart-pulse text-2xl"></i>
+        </div>
+        <div>
+          <div class="flex items-center space-x-2 rtl:space-x-reverse">
+            <span class="font-extrabold text-xl tracking-tight text-slate-800" id="nav-title">Family Pulse</span>
+            <span class="text-xs px-2 py-0.5 rounded-full bg-emeraldCustom-100 text-emeraldCustom-700 font-bold" id="nav-subtitle-ar">نبض الأسرة</span>
+          </div>
+          <p class="text-xs text-slate-500 font-medium" id="nav-school">Al Andalus Private Academy • أكاديمية الأندلس الخاصة</p>
+        </div>
+      </div>
+
+      <!-- Navigation Links -->
+      <nav class="hidden md:flex items-center space-x-6 rtl:space-x-reverse text-sm font-semibold text-slate-600">
+        <a href="#checkin" class="hover:text-emeraldCustom-600 transition" id="menu-checkin">Daily Tap</a>
+        <a href="#dashboard" class="hover:text-emeraldCustom-600 transition" id="menu-dashboard">Dashboard</a>
+        <a href="#actions" class="hover:text-emeraldCustom-600 transition" id="menu-actions">Smart Actions</a>
+        <a href="#hardware" class="hover:text-emeraldCustom-600 transition" id="menu-hardware">Robot Device</a>
+        <a href="#privacy" class="hover:text-emeraldCustom-600 transition" id="menu-privacy">Privacy &amp; UAE</a>
+      </nav>
+
+      <!-- Language & Controls -->
+      <div class="flex items-center space-x-3 rtl:space-x-reverse">
+        <button id="lang-toggle" onclick="toggleLanguage()" class="px-3 py-1.5 rounded-xl bg-sandCustom-100 border border-sandCustom-200 text-xs font-bold text-slate-700 hover:bg-sandCustom-200 transition flex items-center gap-2">
+          <i class="fa-solid fa-globe text-emeraldCustom-600"></i>
+          <span id="lang-text">العربية</span>
+        </button>
+        <a href="#checkin" class="hidden sm:inline-flex items-center justify-center px-4 py-2 rounded-xl bg-emeraldCustom-600 text-white text-xs font-bold shadow-md hover:bg-emeraldCustom-700 transition" id="cta-button">
+          Log Mood
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
+
+    <!-- HERO SECTION -->
+    <section class="relative rounded-3xl overflow-hidden bg-gradient-to-r from-emeraldCustom-900 via-teal-900 to-slate-900 text-white p-8 sm:p-12 shadow-2xl">
+      <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#34d399_1px,transparent_1px)] [background-size:16px_16px]"></div>
+      <div class="relative z-10 max-w-3xl space-y-4">
+        <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emeraldCustom-500/20 text-emeraldCustom-300 text-xs font-semibold border border-emeraldCustom-500/30">
+          <i class="fa-solid fa-sparkles text-xs"></i>
+          <span id="hero-badge">One Face a Day Tells Us How Our Family Feels</span>
+        </span>
+        <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight" id="hero-heading">
+          Connecting UAE Homes with Low-Friction Emotional Care
+        </h1>
+        <p class="text-slate-300 text-sm sm:text-lg leading-relaxed font-normal" id="hero-desc">
+          Busy daily schedules leave little time to ask "How are you, really?". Family Pulse uses a single-tap non-intrusive routine to capture emotional rhythms, transform data into early gentle insights, and protect family privacy.
+        </p>
+        <div class="pt-4 flex flex-wrap gap-4 items-center">
+          <a href="#checkin" class="px-6 py-3.5 rounded-2xl bg-emeraldCustom-500 hover:bg-emeraldCustom-600 text-slate-950 font-bold text-sm shadow-lg shadow-emeraldCustom-500/30 transition flex items-center gap-2" id="hero-cta-primary">
+            <i class="fa-solid fa-hand-pointer"></i> Try Daily Tap Demo
+          </a>
+          <a href="#hardware" class="px-6 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold text-sm backdrop-blur-md border border-white/20 transition flex items-center gap-2" id="hero-cta-secondary">
+            <i class="fa-solid fa-robot"></i> Explore Tabletop Robot
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 1: DAILY MOOD CHECK-IN WIDGET -->
+    <section id="checkin" class="glass-card rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+        <div>
+          <span class="text-xs font-extrabold text-emeraldCustom-600 uppercase tracking-wider" id="sec1-subtitle">Interactive Feature</span>
+          <h2 class="text-2xl font-bold text-slate-800" id="sec1-title">One Tap a Day Check-In</h2>
+          <p class="text-xs text-slate-500 mt-1" id="sec1-desc">Pick a member role and tap the icon that best represents your mood today. No typing required.</p>
+        </div>
+        <div id="checkin-status" class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emeraldCustom-50 text-emeraldCustom-700 text-xs font-semibold border border-emeraldCustom-200">
+          <i class="fa-solid fa-circle-check"></i>
+          <span id="status-text">Logged for Today!</span>
+        </div>
+      </div>
+
+      <!-- Member Selector -->
+      <div class="space-y-2">
+        <label class="text-xs font-bold text-slate-700 uppercase tracking-wider block" id="label-select-member">Select Family Member:</label>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3" id="member-selector">
+          <button onclick="selectMember('parent')" id="btn-member-parent" class="member-btn active p-3 rounded-2xl border-2 border-emeraldCustom-500 bg-emeraldCustom-50/50 flex items-center gap-3 transition">
+            <div class="w-10 h-10 rounded-xl bg-emeraldCustom-500 text-white flex items-center justify-center font-bold">
+              <i class="fa-solid fa-user-tie"></i>
+            </div>
+            <div class="text-left rtl:text-right">
+              <div class="text-xs font-bold text-slate-800" data-role-name="parent">Parent</div>
+              <div class="text-[10px] text-slate-500" id="parent-sub">والد / والدة</div>
+            </div>
+          </button>
+
+          <button onclick="selectMember('teen')" id="btn-member-teen" class="member-btn p-3 rounded-2xl border-2 border-slate-200 bg-white flex items-center gap-3 transition hover:border-emeraldCustom-300">
+            <div class="w-10 h-10 rounded-xl bg-teal-500 text-white flex items-center justify-center font-bold">
+              <i class="fa-solid fa-graduation-cap"></i>
+            </div>
+            <div class="text-left rtl:text-right">
+              <div class="text-xs font-bold text-slate-800" data-role-name="teen">Teenager</div>
+              <div class="text-[10px] text-slate-500" id="teen-sub">مراهق</div>
+            </div>
+          </button>
+
+          <button onclick="selectMember('child')" id="btn-member-child" class="member-btn p-3 rounded-2xl border-2 border-slate-200 bg-white flex items-center gap-3 transition hover:border-emeraldCustom-300">
+            <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center font-bold">
+              <i class="fa-solid fa-child"></i>
+            </div>
+            <div class="text-left rtl:text-right">
+              <div class="text-xs font-bold text-slate-800" data-role-name="child">Child</div>
+              <div class="text-[10px] text-slate-500" id="child-sub">طفل</div>
+            </div>
+          </button>
+
+          <button onclick="selectMember('grandparent')" id="btn-member-grandparent" class="member-btn p-3 rounded-2xl border-2 border-slate-200 bg-white flex items-center gap-3 transition hover:border-emeraldCustom-300">
+            <div class="w-10 h-10 rounded-xl bg-indigo-500 text-white flex items-center justify-center font-bold">
+              <i class="fa-solid fa-users"></i>
+            </div>
+            <div class="text-left rtl:text-right">
+              <div class="text-xs font-bold text-slate-800" data-role-name="grandparent">Grandparent</div>
+              <div class="text-[10px] text-slate-500" id="grandparent-sub">جد / جدة</div>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Mood Faces Selector -->
+      <div class="space-y-2 pt-2">
+        <label class="text-xs font-bold text-slate-700 uppercase tracking-wider block" id="label-select-mood">How are you feeling right now?</label>
+        <div class="grid grid-cols-5 gap-2 sm:gap-4">
+          
+          <button onclick="logMood(1)" class="mood-btn group p-4 rounded-2xl bg-slate-50 hover:bg-rose-50 border border-slate-200 hover:border-rose-300 transition flex flex-col items-center gap-2">
+            <span class="text-3xl sm:text-4xl transform group-hover:scale-110 transition">😡</span>
+            <span class="text-xs font-bold text-slate-700 group-hover:text-rose-600" id="mood-1">Upset</span>
+            <span class="text-[10px] text-slate-400">منزعج</span>
+          </button>
+
+          <button onclick="logMood(2)" class="mood-btn group p-4 rounded-2xl bg-slate-50 hover:bg-amber-50 border border-slate-200 hover:border-amber-300 transition flex flex-col items-center gap-2">
+            <span class="text-3xl sm:text-4xl transform group-hover:scale-110 transition">😮‍💨</span>
+            <span class="text-xs font-bold text-slate-700 group-hover:text-amber-600" id="mood-2">Tired</span>
+            <span class="text-[10px] text-slate-400">متعب</span>
+          </button>
+
+          <button onclick="logMood(3)" class="mood-btn group p-4 rounded-2xl bg-slate-50 hover:bg-blue-50 border border-slate-200 hover:border-blue-300 transition flex flex-col items-center gap-2">
+            <span class="text-3xl sm:text-4xl transform group-hover:scale-110 transition">😐</span>
+            <span class="text-xs font-bold text-slate-700 group-hover:text-blue-600" id="mood-3">Okay</span>
+            <span class="text-[10px] text-slate-400">عادي</span>
+          </button>
+
+          <button onclick="logMood(4)" class="mood-btn group p-4 rounded-2xl bg-slate-50 hover:bg-teal-50 border border-slate-200 hover:border-teal-300 transition flex flex-col items-center gap-2">
+            <span class="text-3xl sm:text-4xl transform group-hover:scale-110 transition">😌</span>
+            <span class="text-xs font-bold text-slate-700 group-hover:text-teal-600" id="mood-4">Relaxed</span>
+            <span class="text-[10px] text-slate-400">مرتاح</span>
+          </button>
+
+          <button onclick="logMood(5)" class="mood-btn group p-4 rounded-2xl bg-slate-50 hover:bg-emerald-50 border border-slate-200 hover:border-emerald-300 transition flex flex-col items-center gap-2">
+            <span class="text-3xl sm:text-4xl transform group-hover:scale-110 transition">😊</span>
+            <span class="text-xs font-bold text-slate-700 group-hover:text-emerald-600" id="mood-5">Happy</span>
+            <span class="text-[10px] text-slate-400">سعيد</span>
+          </button>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 2: LIVE DASHBOARD -->
+    <section id="dashboard" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      
+      <!-- Left: Score Gauge & Overview (5 Cols) -->
+      <div class="lg:col-span-5 glass-card rounded-3xl p-6 sm:p-8 space-y-6 shadow-sm">
+        <div>
+          <span class="text-xs font-extrabold text-emeraldCustom-600 uppercase tracking-wider" id="sec2-subtitle">Live Overview</span>
+          <h2 class="text-2xl font-bold text-slate-800" id="sec2-title">Family Pulse Score</h2>
+          <p class="text-xs text-slate-500" id="sec2-desc">Calculated as the normalized average of daily entries.</p>
+        </div>
+
+        <!-- Gauge Visualization -->
+        <div class="relative flex flex-col items-center justify-center py-4">
+          <svg class="w-48 h-48 transform -rotate-90" viewBox="0 0 120 120">
+            <!-- Background Track -->
+            <circle cx="60" cy="60" r="50" stroke="#f1f5f9" stroke-width="10" fill="transparent" />
+            <!-- Progress Arc -->
+            <circle id="gauge-arc" cx="60" cy="60" r="50" stroke="#10b981" stroke-width="10" 
+                    stroke-dasharray="314.15" stroke-dashoffset="138" stroke-linecap="round" fill="transparent" class="gauge-circle" />
+          </svg>
+          <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+            <span id="pulse-score-val" class="text-5xl font-black text-slate-900 tracking-tight">56</span>
+            <span class="text-xs text-slate-400 font-bold uppercase" id="out-of-100">out of 100</span>
+          </div>
+        </div>
+
+        <!-- Comparison Banner -->
+        <div class="bg-amber-50/80 border border-amber-200/80 rounded-2xl p-4 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center font-bold">
+              <i class="fa-solid fa-arrow-trend-down text-lg"></i>
+            </div>
+            <div>
+              <div class="text-xs font-bold text-slate-800" id="comp-title">Drop vs Last Week</div>
+              <div class="text-[11px] text-slate-500" id="comp-desc">56 this week vs 71 prior week</div>
+            </div>
+          </div>
+          <span class="px-2.5 py-1 rounded-lg bg-rose-100 text-rose-700 text-xs font-bold" id="comp-badge">-15 pts</span>
+        </div>
+
+        <p class="text-xs text-slate-600 leading-relaxed bg-slate-50 p-3 rounded-xl border border-slate-200/60" id="comp-note">
+          <i class="fa-solid fa-circle-info text-emeraldCustom-600 mr-1 rtl:ml-1"></i>
+          A 15-point drop indicates higher cumulative fatigue and deserves gentle family attention.
+        </p>
+      </div>
+
+      <!-- Right: Role Breakdown & Weekly Trend Chart (7 Cols) -->
+      <div class="lg:col-span-7 space-y-6">
+        
+        <!-- Live Family Member Status Cards -->
+        <div class="glass-card rounded-3xl p-6 shadow-sm space-y-4">
+          <h3 class="text-base font-bold text-slate-800 flex items-center gap-2" id="title-roles">
+            <i class="fa-solid fa-users text-emeraldCustom-600"></i>
+            Current Member Status
+          </h3>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3" id="roles-status-container">
+            <!-- Parent Card -->
+            <div class="p-3.5 rounded-2xl bg-white border border-slate-200/80 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-700" data-role-name="parent">Parent</span>
+                <span id="role-icon-parent" class="text-lg">😌</span>
+              </div>
+              <div class="text-[11px] text-slate-500" id="role-status-parent">Logged: Relaxed</div>
+              <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                <div id="role-bar-parent" class="bg-teal-500 h-full w-4/5"></div>
+              </div>
+            </div>
+
+            <!-- Teen Card -->
+            <div class="p-3.5 rounded-2xl bg-white border border-slate-200/80 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-700" data-role-name="teen">Teenager</span>
+                <span id="role-icon-teen" class="text-lg">😮‍💨</span>
+              </div>
+              <div class="text-[11px] text-slate-500" id="role-status-teen">Logged: Tired</div>
+              <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                <div id="role-bar-teen" class="bg-amber-500 h-full w-2/5"></div>
+              </div>
+            </div>
+
+            <!-- Child Card -->
+            <div class="p-3.5 rounded-2xl bg-white border border-slate-200/80 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-700" data-role-name="child">Child</span>
+                <span id="role-icon-child" class="text-lg">😊</span>
+              </div>
+              <div class="text-[11px] text-slate-500" id="role-status-child">Logged: Happy</div>
+              <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                <div id="role-bar-child" class="bg-emeraldCustom-500 h-full w-full"></div>
+              </div>
+            </div>
+
+            <!-- Grandparent Card -->
+            <div class="p-3.5 rounded-2xl bg-white border border-slate-200/80 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-700" data-role-name="grandparent">Grandparent</span>
+                <span id="role-icon-grandparent" class="text-lg">😐</span>
+              </div>
+              <div class="text-[11px] text-slate-500" id="role-status-grandparent">Logged: Okay</div>
+              <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                <div id="role-bar-grandparent" class="bg-blue-500 h-full w-3/5"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Weekly Trend Chart Card -->
+        <div class="glass-card rounded-3xl p-6 shadow-sm space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="text-base font-bold text-slate-800 flex items-center gap-2" id="title-chart">
+              <i class="fa-solid fa-chart-line text-emeraldCustom-600"></i>
+              Weekly Mood Trend
+            </h3>
+            <span class="text-xs font-bold text-amber-600 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200" id="heaviest-day-tag">
+              ⚡ Tuesday: Heaviest Day
+            </span>
+          </div>
+          <div class="h-56 relative w-full">
+            <canvas id="weeklyChart"></canvas>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SECTION 3: ACTIONABLE INSIGHTS ENGINE -->
+    <section id="actions" class="glass-card rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+        <div>
+          <span class="text-xs font-extrabold text-emeraldCustom-600 uppercase tracking-wider" id="sec3-subtitle">Rule Engine &amp; AI</span>
+          <h2 class="text-2xl font-bold text-slate-800" id="sec3-title">From a Number to a Small Action</h2>
+          <p class="text-xs text-slate-500" id="sec3-desc">Automated gentle recommendations based on mood duration patterns.</p>
+        </div>
+        <button onclick="generateAISummary()" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 transition shadow-md">
+          <i class="fa-solid fa-wand-magic-sparkles text-emeraldCustom-400"></i>
+          <span id="btn-generate-ai">Generate Weekly AI Summary</span>
+        </button>
+      </div>
+
+      <!-- Action Presets Filter Buttons -->
+      <div class="flex flex-wrap gap-2" id="action-filters">
+        <button onclick="filterAction('low3')" id="filter-low3" class="action-filter-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-emeraldCustom-600 text-white shadow-sm transition">
+          Low Mood 3 Days
+        </button>
+        <button onclick="filterAction('low5')" id="filter-low5" class="action-filter-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition">
+          Low Mood 5 Days
+        </button>
+        <button onclick="filterAction('falling')" id="filter-falling" class="action-filter-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition">
+          Falling Pulse
+        </button>
+        <button onclick="filterAction('high')" id="filter-high" class="action-filter-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition">
+          High Pulse
+        </button>
+      </div>
+
+      <!-- Action Detail Result Box -->
+      <div id="action-result-box" class="bg-gradient-to-br from-sandCustom-100 to-white border border-sandCustom-200 rounded-2xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+        <div class="space-y-2 max-w-2xl">
+          <span id="action-tag" class="px-2.5 py-1 rounded-md bg-amber-100 text-amber-800 text-[11px] font-bold uppercase tracking-wide">
+            Recommended Action
+          </span>
+          <h3 id="action-headline" class="text-xl font-bold text-slate-800">A Quiet Talk, Short &amp; Unobtrusive</h3>
+          <p id="action-body" class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+            When low mood persists for 3 consecutive days, initiate a calm 10-minute check-in over evening tea without overwhelming questions or demanding reasons.
+          </p>
+        </div>
+        <div id="action-icon-container" class="w-16 h-16 rounded-2xl bg-emeraldCustom-500/10 text-emeraldCustom-600 flex items-center justify-center text-3xl shrink-0">
+          ☕
+        </div>
+      </div>
+
+      <!-- AI Generated Summary Modal / Container -->
+      <div id="ai-summary-container" class="hidden bg-slate-900 text-white rounded-2xl p-6 space-y-4 animate-fade-in">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+          <div class="flex items-center gap-2 text-emeraldCustom-400 font-bold text-xs uppercase tracking-wider">
+            <i class="fa-solid fa-robot"></i>
+            <span id="ai-modal-title">Claude Weekly Warm Narrative (Anonymous Aggregates)</span>
+          </div>
+          <span class="text-[10px] text-slate-400 bg-slate-800 px-2 py-0.5 rounded">Strict Privacy Standard</span>
+        </div>
+        <p id="ai-summary-text" class="text-xs sm:text-sm text-slate-300 leading-relaxed font-sans">
+          "مرحباً بعائلة الأندلس. هذا الأسبوع شهد ضغوطاً خفيفة منتصف الأسبوع خاصة يوم الثلاثاء، مما أدى لانخفاض نبض الأسرة إلى 56 نقطة. يُنصح بقضاء أمسية هادئة وتجنب النقاشات المجهدة حتى نهاية الأسبوع."
+        </p>
+      </div>
+    </section>
+
+    <!-- SECTION 4: SMART TABLETOP ROBOT DEMO -->
+    <section id="hardware" class="glass-card rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+        <div>
+          <span class="text-xs font-extrabold text-emeraldCustom-600 uppercase tracking-wider" id="sec4-subtitle">Hardware Integration</span>
+          <h2 class="text-2xl font-bold text-slate-800" id="sec4-title">Living Room Tabletop Robot</h2>
+          <p class="text-xs text-slate-500" id="sec4-desc">Low-cost ESP32 micro-controller board placed on the living room table for tactile logging.</p>
+        </div>
+        <!-- Architecture Switcher -->
+        <div class="flex items-center bg-slate-100 p-1 rounded-xl text-xs font-bold">
+          <button onclick="setArch('local')" id="arch-btn-local" class="px-3 py-1.5 rounded-lg bg-white text-slate-800 shadow-sm transition">
+            Local Offline Engine
+          </button>
+          <button onclick="setArch('cloud')" id="arch-btn-cloud" class="px-3 py-1.5 rounded-lg text-slate-500 hover:text-slate-800 transition">
+            Optional Claude Cloud
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+        <!-- Visual Simulation of ESP32 Hardware -->
+        <div class="md:col-span-6 bg-slate-900 rounded-3xl p-8 text-white flex flex-col items-center justify-center space-y-6 relative overflow-hidden shadow-xl border border-slate-800">
+          <div class="absolute top-4 left-4 text-[10px] text-emeraldCustom-400 font-mono">ESP32-WROOM-32 // Wi-Fi Active</div>
+
+          <!-- Robot Head / Device Frame -->
+          <div class="w-64 bg-slate-800 border-4 border-slate-700 rounded-3xl p-6 shadow-2xl flex flex-col items-center space-y-4 relative">
+            
+            <!-- LED Status Indicators -->
+            <div class="flex items-center justify-between w-full px-2">
+              <span id="led-1" class="w-3 h-3 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]"></span>
+              <span id="led-2" class="w-3 h-3 rounded-full bg-teal-500 opacity-30"></span>
+              <span id="led-3" class="w-3 h-3 rounded-full bg-amber-500 opacity-30"></span>
+              <span id="led-4" class="w-3 h-3 rounded-full bg-indigo-500 opacity-30"></span>
+            </div>
+
+            <!-- Simulated Robot Screen / Buzzer output -->
+            <div id="robot-screen" class="w-full h-20 bg-slate-950 rounded-2xl border border-slate-700 flex flex-col items-center justify-center text-center p-2">
+              <span id="robot-display-text" class="text-xs font-mono text-emerald-400">READY: SELECT MEMBER</span>
+            </div>
+
+            <!-- Physical Buttons Simulation -->
+            <div class="w-full space-y-2">
+              <button onclick="pressRobotButton('Member Select')" class="w-full py-2 bg-slate-700 hover:bg-slate-600 rounded-xl text-xs font-bold text-slate-200 shadow active:scale-95 transition flex items-center justify-center gap-2">
+                <i class="fa-solid fa-fingerprint text-emerald-400"></i> Member Button (1)
+              </button>
+              <div class="grid grid-cols-5 gap-1.5 pt-1">
+                <button onclick="pressRobotButton('Upset')" class="py-2 bg-rose-950/80 hover:bg-rose-900 rounded-lg text-xs font-bold text-rose-300 border border-rose-800 active:scale-90 transition">😡</button>
+                <button onclick="pressRobotButton('Tired')" class="py-2 bg-amber-950/80 hover:bg-amber-900 rounded-lg text-xs font-bold text-amber-300 border border-amber-800 active:scale-90 transition">😮‍💨</button>
+                <button onclick="pressRobotButton('Okay')" class="py-2 bg-blue-950/80 hover:bg-blue-900 rounded-lg text-xs font-bold text-blue-300 border border-blue-800 active:scale-90 transition">😐</button>
+                <button onclick="pressRobotButton('Relaxed')" class="py-2 bg-teal-950/80 hover:bg-teal-900 rounded-lg text-xs font-bold text-teal-300 border border-teal-800 active:scale-90 transition">😌</button>
+                <button onclick="pressRobotButton('Happy')" class="py-2 bg-emerald-950/80 hover:bg-emerald-900 rounded-lg text-xs font-bold text-emerald-300 border border-emerald-800 active:scale-90 transition">😊</button>
+              </div>
+            </div>
+
+            <!-- Speaker grill simulation -->
+            <div class="flex gap-1.5 pt-1">
+              <span class="w-1 h-1 bg-slate-600 rounded-full"></span>
+              <span class="w-1 h-1 bg-slate-600 rounded-full"></span>
+              <span class="w-1 h-1 bg-slate-600 rounded-full"></span>
+            </div>
+          </div>
+
+          <p class="text-xs text-slate-400 text-center max-w-xs" id="robot-hint">
+            Tap buttons above to simulate hardware interaction. Audio feedback &amp; LED glows mimic real ESP32 behavior.
+          </p>
+        </div>
+
+        <!-- Hardware Specs List -->
+        <div class="md:col-span-6 space-y-4">
+          <div id="arch-explanation" class="p-4 rounded-2xl bg-emeraldCustom-50 border border-emeraldCustom-200">
+            <h4 class="text-xs font-extrabold text-emeraldCustom-800 uppercase tracking-wider" id="arch-status-title">Current Architecture: Local Engine</h4>
+            <p class="text-xs text-emeraldCustom-900 mt-1" id="arch-status-desc">Runs deterministic rules on the local home server. 100% offline functionality. Zero cloud exposure.</p>
+          </div>
+
+          <div class="space-y-3">
+            <div class="flex items-start gap-3 p-3 rounded-xl bg-white border border-slate-200/80">
+              <i class="fa-solid fa-microchip text-emeraldCustom-600 mt-1"></i>
+              <div>
+                <h5 class="text-xs font-bold text-slate-800" id="spec-parts-title">Hardware Parts</h5>
+                <p class="text-xs text-slate-500" id="spec-parts-desc">ESP32 board, 6 physical buttons, 4 status LEDs, and a mini piezoelectric buzzer. Low cost and highly durable.</p>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-3 p-3 rounded-xl bg-white border border-slate-200/80">
+              <i class="fa-solid fa-wifi text-emeraldCustom-600 mt-1"></i>
+              <div>
+                <h5 class="text-xs font-bold text-slate-800" id="spec-conn-title">Instant Synchronization</h5>
+                <p class="text-xs text-slate-500" id="spec-conn-desc">Transmits mood events over local Wi-Fi to the family server; dashboard reflects changes in seconds.</p>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-3 p-3 rounded-xl bg-white border border-slate-200/80">
+              <i class="fa-solid fa-shield-halved text-emeraldCustom-600 mt-1"></i>
+              <div>
+                <h5 class="text-xs font-bold text-slate-800" id="spec-fallback-title">Resilient Fallback</h5>
+                <p class="text-xs text-slate-500" id="spec-fallback-desc">API keys remain secured on the server. If internet fails, the local rule engine keeps working seamlessly.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 5: PRIVACY BY DESIGN & UAE IMPACT -->
+    <section id="privacy" class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      
+      <!-- Privacy Toggles Box -->
+      <div class="glass-card rounded-3xl p-6 sm:p-8 space-y-6 shadow-sm">
+        <div>
+          <span class="text-xs font-extrabold text-emeraldCustom-600 uppercase tracking-wider" id="sec5-subtitle">Guaranteed Safety</span>
+          <h2 class="text-2xl font-bold text-slate-800" id="sec5-title">Privacy by Design</h2>
+          <p class="text-xs text-slate-500" id="sec5-desc">Complete user control over data autonomy and sharing.</p>
+        </div>
+
+        <div class="space-y-4">
+          <!-- Toggle 1 -->
+          <div class="p-4 rounded-2xl bg-white border border-slate-200/80 flex items-center justify-between">
+            <div class="space-y-0.5">
+              <div class="text-xs font-bold text-slate-800" id="p1-title">Parental Sharing Control</div>
+              <div class="text-[11px] text-slate-500" id="p1-desc">Member decides if detailed daily mood is shared with parents.</div>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" checked class="sr-only peer" onchange="showToast('Sharing preference updated')">
+              <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emeraldCustom-600"></div>
+            </label>
+          </div>
+
+          <!-- Toggle 2 -->
+          <div class="p-4 rounded-2xl bg-white border border-slate-200/80 flex items-center justify-between">
+            <div class="space-y-0.5">
+              <div class="text-xs font-bold text-slate-800" id="p2-title">No Camera / Audio Guarantee</div>
+              <div class="text-[11px] text-slate-500" id="p2-desc">Hardware has zero lens or microphone components.</div>
+            </div>
+            <span class="px-2.5 py-1 rounded-md bg-emeraldCustom-100 text-emeraldCustom-800 text-[10px] font-bold">100% Enforced</span>
+          </div>
+
+          <!-- Toggle 3 -->
+          <div class="p-4 rounded-2xl bg-white border border-slate-200/80 flex items-center justify-between">
+            <div class="space-y-0.5">
+              <div class="text-xs font-bold text-slate-800" id="p3-title">Anonymous Role Metrics</div>
+              <div class="text-[11px] text-slate-500" id="p3-desc">AI requests send aggregated roles (e.g. "teen") without real names.</div>
+            </div>
+            <span class="px-2.5 py-1 rounded-md bg-emeraldCustom-100 text-emeraldCustom-800 text-[10px] font-bold">Anonymized</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- UAE Value Alignment -->
+      <div class="glass-card rounded-3xl p-6 sm:p-8 space-y-6 shadow-sm border-l-4 border-l-emeraldCustom-500">
+        <div>
+          <span class="text-xs font-extrabold text-emeraldCustom-600 uppercase tracking-wider" id="sec6-subtitle">Community Value</span>
+          <h2 class="text-2xl font-bold text-slate-800" id="sec6-title">Impact for the UAE Home</h2>
+          <p class="text-xs text-slate-500" id="sec6-desc">Designed specifically to honor local cultural values and family solidarity.</p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="p-4 rounded-2xl bg-sandCustom-100/80 border border-sandCustom-200 space-y-2">
+            <i class="fa-solid fa-house-chimney-window text-emeraldCustom-600 text-xl"></i>
+            <h4 class="text-xs font-bold text-slate-800" id="uae-1-title">Strengthens Family Bonds</h4>
+            <p class="text-xs text-slate-600" id="uae-1-desc">Directly aligns with UAE national priorities for social cohesion and household happiness.</p>
+          </div>
+
+          <div class="p-4 rounded-2xl bg-sandCustom-100/80 border border-sandCustom-200 space-y-2">
+            <i class="fa-solid fa-hand-holding-heart text-emeraldCustom-600 text-xl"></i>
+            <h4 class="text-xs font-bold text-slate-800" id="uae-2-title">Gentle Teen Support</h4>
+            <p class="text-xs text-slate-600" id="uae-2-desc">Provides non-judgmental mental health tracking for adolescents without social stigma.</p>
+          </div>
+
+          <div class="p-4 rounded-2xl bg-sandCustom-100/80 border border-sandCustom-200 space-y-2">
+            <i class="fa-solid fa-language text-emeraldCustom-600 text-xl"></i>
+            <h4 class="text-xs font-bold text-slate-800" id="uae-3-title">Multi-Generational Ease</h4>
+            <p class="text-xs text-slate-600" id="uae-3-desc">Fully accessible Arabic interface suitable for young children and grandparents alike.</p>
+          </div>
+
+          <div class="p-4 rounded-2xl bg-sandCustom-100/80 border border-sandCustom-200 space-y-2">
+            <i class="fa-solid fa-moon text-emeraldCustom-600 text-xl"></i>
+            <h4 class="text-xs font-bold text-slate-800" id="uae-4-title">Ramadan &amp; Event Readiness</h4>
+            <p class="text-xs text-slate-600" id="uae-4-desc">Customizable seasonal modes to support sleep and mood changes during holy months and holidays.</p>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-900 text-white text-xs font-bold px-4 py-3 rounded-2xl shadow-xl flex items-center gap-3">
+    <i class="fa-solid fa-bell text-emeraldCustom-400"></i>
+    <span id="toast-message">Action completed</span>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="mt-16 bg-slate-900 text-slate-400 text-xs border-t border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center space-x-3 rtl:space-x-reverse">
+        <div class="w-8 h-8 rounded-xl bg-emeraldCustom-500 text-slate-950 flex items-center justify-center font-bold">
+          <i class="fa-solid fa-heart-pulse"></i>
+        </div>
+        <div>
+          <div class="text-white font-bold" id="footer-title">Family Pulse • نبض الأسرة</div>
+          <div class="text-[11px] text-slate-500" id="footer-subtitle">Al Andalus Private Academy • أكاديمية الأندلس الخاصة</div>
+        </div>
+      </div>
+      <div class="text-center sm:text-right" id="footer-copy">
+        © 2026 Family Pulse Project. Designed for UAE Family Well-Being.
+      </div>
+    </div>
+  </footer>
+
+  <!-- APPLICATION LOGIC JS -->
+  <script>
+    // --- STATE MANAGEMENT ---
+    let currentLang = 'en';
+    let selectedRole = 'parent';
+    let currentScore = 56;
+    let currentArch = 'local';
+
+    // Mock weekly score data (1: Upset to 5: Happy mapped to 0-100 scale)
+    const moodScores = {
+      1: 20, // Upset
+      2: 40, // Tired
+      3: 60, // Okay
+      4: 80, // Relaxed
+      5: 100 // Happy
+    };
+
+    const roleData = {
+      parent: { mood: 4, labelEn: 'Relaxed', labelAr: 'مرتاح', icon: '😌', score: 80 },
+      teen: { mood: 2, labelEn: 'Tired', labelAr: 'متعب', icon: '😮‍💨', score: 40 },
+      child: { mood: 5, labelEn: 'Happy', labelAr: 'سعيد', icon: '😊', score: 100 },
+      grandparent: { mood: 3, labelEn: 'Okay', labelAr: 'عادي', icon: '😐', score: 60 }
+    };
+
+    const actionData = {
+      low3: {
+        headlineEn: "A Quiet Talk, Short & Unobtrusive",
+        headlineAr: "حديث هادئ، جلسة قصيرة بلا أسئلة كثيرة",
+        bodyEn: "When low mood persists for 3 consecutive days, initiate a calm 10-minute check-in over evening tea without overwhelming questions.",
+        bodyAr: "عند استمرار المزاج المنخفض 3 أيام، يُفضل إجراء حديث هادئ وجلسة قصيرة دون إثقال بالأسئلة.",
+        icon: "☕"
+      },
+      low5: {
+        headlineEn: "Gentle Support & Specialist Consultation",
+        headlineAr: "دعم لطيف والتفكير في مختص دون تشخيص",
+        bodyEn: "Persistent fatigue for 5 days suggests offering extra rest and discreetly consulting a youth wellbeing specialist without clinical labeling.",
+        bodyAr: "استمرار التعب لـ 5 أيام يستدعي تقديم الدعم والتفكير باستشارة مختص دون إطلاق تشخيص طبّي.",
+        icon: "🩺"
+      },
+      falling: {
+        headlineEn: "Quiet Evening Rest & Shared Snacks",
+        headlineAr: "راحة، وجبات خفيفة وأمسية هادئة",
+        bodyEn: "A sudden weekly pulse drop calls for reducing homework/work pressure, providing light favorite snacks, and early bedtime.",
+        bodyAr: "انخفاض النبض فجأة يتطلب تقليل ضغوط المهام، تقديم وجبات خفيفة، وقضاء أمسية منزلية مريحة.",
+        icon: "🍲"
+      },
+      high: {
+        headlineEn: "Family Celebration & Outdoor Outing",
+        headlineAr: "احتفال ونشاط عائلي ممتع",
+        bodyEn: "High family pulse (above 80) is an ideal time to celebrate togetherness with a fun weekend activity or outdoor picnic.",
+        bodyAr: "ارتفاع النبض العائلي فرصة رائعة للاحتفال وتنظيم نشاط خارجي ممتع للجميع.",
+        icon: "🎉"
+      }
+    };
+
+    // --- CHART INITIALIZATION ---
+    let weeklyChart;
+    function initChart() {
+      const ctx = document.getElementById('weeklyChart').getContext('2d');
+      weeklyChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: currentLang === 'en' 
+            ? ['Sun', 'Mon', 'Tue (Heavy)', 'Wed', 'Thu', 'Fri', 'Sat']
+            : ['الأحد', 'الإثنين', 'الثلاثاء (الأثقل)', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'],
+          datasets: [{
+            label: currentLang === 'en' ? 'Family Pulse (Score)' : 'نبض الأسرة',
+            data: [72, 65, 42, 54, 68, 85, 80],
+            borderColor: '#10b981',
+            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+            fill: true,
+            tension: 0.4,
+            pointBackgroundColor: ['#10b981', '#10b981', '#f87171', '#10b981', '#10b981', '#10b981', '#10b981'],
+            pointRadius: [5, 5, 8, 5, 5, 5, 5]
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            y: { min: 0, max: 100, grid: { color: '#f1f5f9' } },
+            x: { grid: { display: false } }
+          }
+        }
+      });
+    }
+
+    // --- MEMBER SELECTOR ---
+    function selectMember(role) {
+      selectedRole = role;
+      document.querySelectorAll('.member-btn').forEach(btn => {
+        btn.classList.remove('border-emeraldCustom-500', 'bg-emeraldCustom-50/50');
+        btn.classList.add('border-slate-200', 'bg-white');
+      });
+      const activeBtn = document.getElementById(`btn-member-${role}`);
+      if (activeBtn) {
+        activeBtn.classList.remove('border-slate-200', 'bg-white');
+        activeBtn.classList.add('border-emeraldCustom-500', 'bg-emeraldCustom-50/50');
+      }
+      showToast(`Selected member: ${getRoleName(role)}`);
+    }
+
+    function getRoleName(role) {
+      const namesEn = { parent: 'Parent', teen: 'Teenager', child: 'Child', grandparent: 'Grandparent' };
+      const namesAr = { parent: 'والد / والدة', teen: 'مراهق', child: 'طفل', grandparent: 'جد / جدة' };
+      return currentLang === 'en' ? namesEn[role] : namesAr[role];
+    }
+
+    // --- LOG MOOD FUNCTION ---
+    function logMood(moodLevel) {
+      const newScore = moodScores[moodLevel];
+      roleData[selectedRole].score = newScore;
+      roleData[selectedRole].mood = moodLevel;
+      
+      const icons = ['😡', '😮‍💨', '😐', '😌', '😊'];
+      const labelsEn = ['Upset', 'Tired', 'Okay', 'Relaxed', 'Happy'];
+      const labelsAr = ['منزعج', 'متعب', 'عادي', 'مرتاح', 'سعيد'];
+
+      roleData[selectedRole].icon = icons[moodLevel - 1];
+      roleData[selectedRole].labelEn = labelsEn[moodLevel - 1];
+      roleData[selectedRole].labelAr = labelsAr[moodLevel - 1];
+
+      // Update UI for Role Status Card
+      const iconEl = document.getElementById(`role-icon-${selectedRole}`);
+      const statusEl = document.getElementById(`role-status-${selectedRole}`);
+      const barEl = document.getElementById(`role-bar-${selectedRole}`);
+
+      if (iconEl) iconEl.innerText = icons[moodLevel - 1];
+      if (statusEl) statusEl.innerText = (currentLang === 'en' ? 'Logged: ' : 'تم التسجيل: ') + (currentLang === 'en' ? labelsEn[moodLevel - 1] : labelsAr[moodLevel - 1]);
+      if (barEl) barEl.style.width = `${newScore}%`;
+
+      // Recalculate Overall Pulse Score
+      const total = Object.values(roleData).reduce((sum, r) => sum + r.score, 0);
+      currentScore = Math.round(total / Object.keys(roleData).length);
+
+      // Animate Score Counter & Gauge
+      document.getElementById('pulse-score-val').innerText = currentScore;
+      const arc = document.getElementById('gauge-arc');
+      const offset = 314.15 - (314.15 * currentScore / 100);
+      arc.style.strokeDashoffset = offset;
+
+      // Robot screen feedback simulation
+      const robotText = document.getElementById('robot-display-text');
+      if (robotText) {
+        robotText.innerText = `LOGGED: ${getRoleName(selectedRole).toUpperCase()} -> ${labelsEn[moodLevel - 1].toUpperCase()}`;
+      }
+
+      showToast(currentLang === 'en' ? `Mood logged for ${getRoleName(selectedRole)}!` : `تم تسجيل المزاج لـ ${getRoleName(selectedRole)}!`);
+    }
+
+    // --- ACTION FILTER ENGINE ---
+    function filterAction(key) {
+      document.querySelectorAll('.action-filter-btn').forEach(btn => {
+        btn.classList.remove('bg-emeraldCustom-600', 'text-white');
+        btn.classList.add('bg-white', 'text-slate-700', 'border-slate-200');
+      });
+      const activeBtn = document.getElementById(`filter-${key}`);
+      if (activeBtn) {
+        activeBtn.classList.remove('bg-white', 'text-slate-700', 'border-slate-200');
+        activeBtn.classList.add('bg-emeraldCustom-600', 'text-white');
+      }
+
+      const item = actionData[key];
+      if (item) {
+        document.getElementById('action-headline').innerText = currentLang === 'en' ? item.headlineEn : item.headlineAr;
+        document.getElementById('action-body').innerText = currentLang === 'en' ? item.bodyEn : item.bodyAr;
+        document.getElementById('action-icon-container').innerText = item.icon;
+      }
+    }
+
+    // --- AI SUMMARY GENERATOR ---
+    function generateAISummary() {
+      const container = document.getElementById('ai-summary-container');
+      const text = document.getElementById('ai-summary-text');
+      container.classList.remove('hidden');
+
+      if (currentLang === 'en') {
+        text.innerText = `"Hello Al Andalus Family. This week showed mild mid-week fatigue, particularly on Tuesday, bringing the overall pulse to 56. We recommend a quiet rest evening and avoiding heavy academic discussions through the weekend."`;
+      } else {
+        text.innerText = `"مرحباً بعائلة الأندلس. هذا الأسبوع شهد ضغوطاً خفيفة منتصف الأسبوع خاصة يوم الثلاثاء، مما أدى لانخفاض نبض الأسرة إلى 56 نقطة. يُنصح بقضاء أمسية هادئة وتجنب النقاشات المجهدة حتى نهاية الأسبوع."`;
+      }
+
+      showToast(currentLang === 'en' ? 'Weekly AI Narrative Generated' : 'تم توليد الملخص الذكي للأسبوع');
+    }
+
+    // --- HARDWARE DEMO BUTTON PRESS ---
+    function pressRobotButton(actionName) {
+      const display = document.getElementById('robot-display-text');
+      const leds = [document.getElementById('led-1'), document.getElementById('led-2'), document.getElementById('led-3'), document.getElementById('led-4')];
+      
+      // Flash LEDs
+      leds.forEach(led => led.style.opacity = '1');
+      setTimeout(() => {
+        leds.forEach((led, i) => { if(i !== 0) led.style.opacity = '0.3'; });
+      }, 500);
+
+      display.innerText = `BEEP! ${actionName.toUpperCase()}`;
+      showToast(`ESP32 Signal: ${actionName}`);
+    }
+
+    // --- ARCHITECTURE TOGGLE ---
+    function setArch(type) {
+      currentArch = type;
+      const btnLocal = document.getElementById('arch-btn-local');
+      const btnCloud = document.getElementById('arch-btn-cloud');
+      const title = document.getElementById('arch-status-title');
+      const desc = document.getElementById('arch-status-desc');
+
+      if (type === 'local') {
+        btnLocal.className = "px-3 py-1.5 rounded-lg bg-white text-slate-800 shadow-sm transition";
+        btnCloud.className = "px-3 py-1.5 rounded-lg text-slate-500 hover:text-slate-800 transition";
+        title.innerText = currentLang === 'en' ? "Current Architecture: Local Engine" : "المحرك الحالي: محرك محلي";
+        desc.innerText = currentLang === 'en' ? "Runs deterministic rules on the local home server. 100% offline functionality. Zero cloud exposure." : "يعمل بقواعد محددة على خادم المنزل المحلي. 100% دون إنترنت وبلا خروج بيانات.";
+      } else {
+        btnCloud.className = "px-3 py-1.5 rounded-lg bg-white text-slate-800 shadow-sm transition";
+        btnLocal.className = "px-3 py-1.5 rounded-lg text-slate-500 hover:text-slate-800 transition";
+        title.innerText = currentLang === 'en' ? "Current Architecture: Optional Claude Cloud" : "المحرك الحالي: كلود اختياري";
+        desc.innerText = currentLang === 'en' ? "Generates warm, empathetic weekly narratives using anonymous aggregated metrics (roles only, no names)." : "يكتب ملخصات أسبوعية دافئة باستخدام أرقام مجمعة وأدوار فقط دون أسماء.";
+      }
+    }
+
+    // --- TOAST FUNCTION ---
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-message').innerText = msg;
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      setTimeout(() => {
+        toast.classList.add('translate-y-20', 'opacity-0');
+      }, 2500);
+    }
+
+    // --- BILINGUAL LANGUAGE SWITCHER ---
+    function toggleLanguage() {
+      currentLang = currentLang === 'en' ? 'ar' : 'en';
+      document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+      document.documentElement.lang = currentLang;
+
+      // Update Navigation & Brand
+      document.getElementById('lang-text').innerText = currentLang === 'en' ? 'العربية' : 'English';
+      document.getElementById('nav-title').innerText = currentLang === 'en' ? 'Family Pulse' : 'نبض الأسرة';
+      document.getElementById('menu-checkin').innerText = currentLang === 'en' ? 'Daily Tap' : 'التسجيل اليومي';
+      document.getElementById('menu-dashboard').innerText = currentLang === 'en' ? 'Dashboard' : 'لوحة النبض';
+      document.getElementById('menu-actions').innerText = currentLang === 'en' ? 'Smart Actions' : 'مقترحات ذكية';
+      document.getElementById('menu-hardware').innerText = currentLang === 'en' ? 'Robot Device' : 'روبوت الصالة';
+      document.getElementById('menu-privacy').innerText = currentLang === 'en' ? 'Privacy & UAE' : 'الخصوصية والأثر';
+      document.getElementById('cta-button').innerText = currentLang === 'en' ? 'Log Mood' : 'سجّل المزاج';
+
+      // Update Hero
+      document.getElementById('hero-badge').innerText = currentLang === 'en' ? 'One Face a Day Tells Us How Our Family Feels' : 'وجه واحد كل يوم يخبرنا كيف تشعر أسرتنا';
+      document.getElementById('hero-heading').innerText = currentLang === 'en' ? 'Connecting UAE Homes with Low-Friction Emotional Care' : 'تعزيز الترابط في البيت الإماراتي عبر متابعة لطيفة للمشاعر';
+      document.getElementById('hero-desc').innerText = currentLang === 'en' ? 'Busy daily schedules leave little time to ask "How are you, really?". Family Pulse uses a single-tap non-intrusive routine to capture emotional rhythms and protect family privacy.' : 'البيوت مشغولة بالعمل والدراسة ولا وقت للسؤال: كيف حالك فعلاً؟ نبض الأسرة يقدم ضغطة واحدة يومياً لاكتشاف النبض العائلي مع حماية كاملة للخصوصية.';
+      document.getElementById('hero-cta-primary').innerHTML = currentLang === 'en' ? '<i class="fa-solid fa-hand-pointer"></i> Try Daily Tap Demo' : '<i class="fa-solid fa-hand-pointer"></i> جرب التسجيل اليومي';
+      document.getElementById('hero-cta-secondary').innerHTML = currentLang === 'en' ? '<i class="fa-solid fa-robot"></i> Explore Tabletop Robot' : '<i class="fa-solid fa-robot"></i> استكشف الروبوت';
+
+      // Update Section Titles
+      document.getElementById('sec1-title').innerText = currentLang === 'en' ? 'One Tap a Day Check-In' : 'ضغطة واحدة كل يوم';
+      document.getElementById('sec1-desc').innerText = currentLang === 'en' ? 'Pick a member role and tap the icon that best represents your mood today.' : 'اختر فرد الأسرة واضغط على الوجه الذي يشبه يومك. لا كتابة ولا أسئلة.';
+      document.getElementById('label-select-member').innerText = currentLang === 'en' ? 'Select Family Member:' : 'اختر فرد الأسرة:';
+      document.getElementById('label-select-mood').innerText = currentLang === 'en' ? 'How are you feeling right now?' : 'كيف تشعر اليوم؟';
+
+      document.getElementById('sec2-title').innerText = currentLang === 'en' ? 'Family Pulse Score' : 'نبض الأسرة رقم واحد يُفهم بنظرة';
+      document.getElementById('out-of-100').innerText = currentLang === 'en' ? 'out of 100' : 'من 100';
+      document.getElementById('comp-title').innerText = currentLang === 'en' ? 'Drop vs Last Week' : 'مقارنة بالأسبوع السابق';
+      document.getElementById('comp-desc').innerText = currentLang === 'en' ? '56 this week vs 71 prior week' : '56 هذا الأسبوع مقابل 71 في السابق';
+
+      document.getElementById('sec3-title').innerText = currentLang === 'en' ? 'From a Number to a Small Action' : 'من الرقم إلى فعل صغير';
+      document.getElementById('btn-generate-ai').innerText = currentLang === 'en' ? 'Generate Weekly AI Summary' : 'توليد ملخص الذكاء الاصطناعي';
+
+      document.getElementById('sec4-title').innerText = currentLang === 'en' ? 'Living Room Tabletop Robot' : 'روبوت صغير على طاولة الصالة';
+
+      document.getElementById('sec5-title').innerText = currentLang === 'en' ? 'Privacy by Design' : 'الخصوصية جزء من التصميم';
+      document.getElementById('sec6-title').innerText = currentLang === 'en' ? 'Impact for the UAE Home' : 'أثر يناسب البيت الإماراتي';
+
+      // Re-render role labels
+      document.querySelectorAll('[data-role-name="parent"]').forEach(e => e.innerText = currentLang === 'en' ? 'Parent' : 'والد / والدة');
+      document.querySelectorAll('[data-role-name="teen"]').forEach(e => e.innerText = currentLang === 'en' ? 'Teenager' : 'مراهق');
+      document.querySelectorAll('[data-role-name="child"]').forEach(e => e.innerText = currentLang === 'en' ? 'Child' : 'طفل');
+      document.querySelectorAll('[data-role-name="grandparent"]').forEach(e => e.innerText = currentLang === 'en' ? 'Grandparent' : 'جد / جدة');
+
+      // Refresh Chart labels
+      if (weeklyChart) {
+        weeklyChart.data.labels = currentLang === 'en' 
+          ? ['Sun', 'Mon', 'Tue (Heavy)', 'Wed', 'Thu', 'Fri', 'Sat']
+          : ['الأحد', 'الإثنين', 'الثلاثاء (الأثقل)', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+        weeklyChart.update();
+      }
+
+      // Update current active action view
+      filterAction('low3');
+    }
+
+    // Initialize Page
+    window.onload = function() {
+      initChart();
+    };
+  </script>
+</body>
+</html>
